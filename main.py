@@ -103,8 +103,8 @@ assist=0
 heart1=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
 heart2=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
 heart3=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
-toggle_off=pygame.transform.scale(pygame.image.load("assets/toggle-off.png"), (32, 32))
-toggle_on=pygame.transform.scale(pygame.image.load("assets/toggle-on.png"), (32, 32))
+toggle_off=pygame.transform.scale(pygame.image.load("assets/toggle-off.png"), (150, 150))
+toggle_on=pygame.transform.scale(pygame.image.load("assets/toggle-on.png"), (150, 150))
 
 while running:
     for event in pygame.event.get():
@@ -119,6 +119,11 @@ while running:
                     clicked_row=(mouse_y-offset)//cell_size
 
                     selected_cell=(clicked_col,clicked_row)
+                elif 150<= mouse_x <=300 and 1200<=mouse_y<=1350:
+                        if assist==0:
+                            assist=1
+                        else:
+                            assist=0
                 else:
                     selected_cell=None
             elif state==0:
@@ -170,13 +175,15 @@ while running:
                     cell_value=sudoku_matrix[i][j]
                     if cell_value != 0 and cell_value == selected_number:
                         highlight_cell=(j*cell_size+offset,i*cell_size+offset)
-                        pygame.draw.rect(screen, (171, 245, 255), pygame.Rect(
-                            (offset + (j//3) *3* cell_size,
-                             offset + (i//3) *3* cell_size), (3 * cell_size, 3 * cell_size)))
+                        if assist==1:
+                            pygame.draw.rect(screen, (171, 245, 255), pygame.Rect(
+                                (offset + (j//3) *3* cell_size,
+                                 offset + (i//3) *3* cell_size), (3 * cell_size, 3 * cell_size)))
                         ok=1
                 if ok==1:
-                    pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((offset, highlight_cell[1]), (grid_size, cell_size)))
-                    pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((highlight_cell[0], offset), (cell_size, grid_size)))
+                    if assist==1:
+                        pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((offset, highlight_cell[1]), (grid_size, cell_size)))
+                        pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((highlight_cell[0], offset), (cell_size, grid_size)))
                     pygame.draw.rect(screen, (219, 203, 247), pygame.Rect((highlight_cell[0], highlight_cell[1]), (cell_size, cell_size)))
 
             if selected_number!=0 and sudoku_matrix[floor(sel_col)][floor(sel_row)] != correct_matrix[floor(sel_col)][floor(sel_row)]:
@@ -275,6 +282,17 @@ while running:
 
             state = 0
             mistakes = 0
+
+        if assist==0:
+            screen.blit(toggle_off, (150, 1260))
+        else:
+            screen.blit(toggle_on, (150, 1260))
+
+        font=pygame.font.SysFont('Arial', 56)
+        assist_font=font.render('Assist', True, (0, 0, 0))
+        assistRect=assist_font.get_rect()
+        assistRect.center=(380, 1340);
+        screen.blit(assist_font, assistRect)
 
 
 
