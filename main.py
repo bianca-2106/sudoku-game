@@ -40,69 +40,81 @@ def generate_board(board):
 
     return True
 
+def easy():
+    global correct_matrix, sudoku_matrix, original_matrix, left_to_complete
+    correct_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    generate_board(correct_matrix)
+
+    uncompleted_cells = []
+
+    for i in range(30):
+        x = random.randint(0, 8)
+        y = random.randint(0, 8)
+        uncompleted_cells.append((x, y))
+
+    sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            sudoku_matrix[i][j] = correct_matrix[i][j]
+
+    for i, j in uncompleted_cells:
+        sudoku_matrix[i][j] = 0
+
+    original_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            if sudoku_matrix[i][j] != 0:
+                original_matrix[i][j] = 1
+
+    left_to_complete = 30
 
 pygame.init()
 screen = pygame.display.set_mode((1440, 1440))
 pygame.display.set_caption("Sudoku Game")
 running = True
-
-offset=120
-grid_size=1200
-cell_size= grid_size / 9
+state=0
+offset = 120
+grid_size = 1200
+cell_size = grid_size / 9
 pygame.font.init()
-number_font=pygame.font.SysFont("Arial", 60)
+number_font = pygame.font.SysFont("Arial", 60)
 
-correct_matrix=[[0 for _ in range(9)] for _ in range(9)]
-
-generate_board(correct_matrix)
-
-uncompleted_cells=[]
-
-for i in range(30):
-    x=random.randint(0,8)
-    y=random.randint(0,8)
-    uncompleted_cells.append((x,y))
-
+correct_matrix = [[0 for _ in range(9)] for _ in range(9)]
 sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
+original_matrix = [[0 for _ in range(9)] for _ in range(9)]
 
-for i in range(9):
-    for j in range(9):
-        sudoku_matrix[i][j] = correct_matrix[i][j]
+selected_cell = None
+selected_number = 0
 
-for i,j in uncompleted_cells:
-    sudoku_matrix[i][j]=0
-
-original_matrix=[[0 for _ in range(9)] for _ in range(9)]
-
-for i in range(9):
-    for j in range(9):
-        if sudoku_matrix[i][j]!=0:
-            original_matrix[i][j]=1
-
-selected_cell=None
-selected_number=0
-
-added_number=0
-deleted_cell=None
-mistakes=0
-
-left_to_complete=30
+added_number = 0
+deleted_cell = None
+mistakes = 0
+left_to_complete = 0
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y=pygame.mouse.get_pos()
+            if state==1:
+                mouse_x, mouse_y=pygame.mouse.get_pos()
 
-            if offset<=mouse_x <=offset+grid_size and offset<=mouse_y <=offset+grid_size:
-                clicked_col=(mouse_x-offset)//cell_size
-                clicked_row=(mouse_y-offset)//cell_size
+                if offset<=mouse_x <=offset+grid_size and offset<=mouse_y <=offset+grid_size:
+                    clicked_col=(mouse_x-offset)//cell_size
+                    clicked_row=(mouse_y-offset)//cell_size
 
-                selected_cell=(clicked_col,clicked_row)
-            else:
-                selected_cell=None
-        elif event.type == pygame.KEYDOWN:
+                    selected_cell=(clicked_col,clicked_row)
+                else:
+                    selected_cell=None
+            elif state==0:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if 600<= mouse_x <=840 and 720<=mouse_y <= 720+120:
+                    easy()
+                    state=1
+        elif state==1 and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 added_number=1
             elif event.key == pygame.K_2:
@@ -127,87 +139,102 @@ while running:
 
 
     screen.fill((148, 115, 189))
+    if state==1:
+        pygame.draw.rect(screen, (192, 252, 246), pygame.Rect((120, 120), (1200, 1200)))
 
-    pygame.draw.rect(screen, (192, 252, 246), pygame.Rect((120, 120), (1200, 1200)))
+        if selected_cell is not None:
+            sel_row, sel_col=selected_cell
+            highlight_x=sel_col*cell_size+offset
+            highlight_y=sel_row*cell_size+offset
 
-    if selected_cell is not None:
-        sel_row, sel_col=selected_cell
-        highlight_x=sel_col*cell_size+offset
-        highlight_y=sel_row*cell_size+offset
+            selected_number=sudoku_matrix[floor(sel_col)][floor(sel_row)]
 
-        selected_number=sudoku_matrix[floor(sel_col)][floor(sel_row)]
-
-        pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
-
-        for i in range(9):
-            ok=0
-            highlight_cell=None
-            for j in range(9):
-                cell_value=sudoku_matrix[i][j]
-                if cell_value != 0 and cell_value == selected_number:
-                    highlight_cell=(j*cell_size+offset,i*cell_size+offset)
-                    pygame.draw.rect(screen, (171, 245, 255), pygame.Rect(
-                        (offset + (j//3) *3* cell_size,
-                         offset + (i//3) *3* cell_size), (3 * cell_size, 3 * cell_size)))
-                    ok=1
-            if ok==1:
-                pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((offset, highlight_cell[1]), (grid_size, cell_size)))
-                pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((highlight_cell[0], offset), (cell_size, grid_size)))
-                pygame.draw.rect(screen, (219, 203, 247), pygame.Rect((highlight_cell[0], highlight_cell[1]), (cell_size, cell_size)))
-
-        if selected_number!=0 and sudoku_matrix[floor(sel_col)][floor(sel_row)] != correct_matrix[floor(sel_col)][floor(sel_row)]:
-            pygame.draw.rect(screen, (255, 0, 0),
-            pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
-        else:
             pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
 
-        if added_number!=0 and selected_number==0:
-            sudoku_matrix[floor(sel_col)][floor(sel_row)]=added_number
-            if sudoku_matrix[floor(sel_col)][floor(sel_row)]!=correct_matrix[floor(sel_col)][floor(sel_row)]:
-                mistakes+=1
+            for i in range(9):
+                ok=0
+                highlight_cell=None
+                for j in range(9):
+                    cell_value=sudoku_matrix[i][j]
+                    if cell_value != 0 and cell_value == selected_number:
+                        highlight_cell=(j*cell_size+offset,i*cell_size+offset)
+                        pygame.draw.rect(screen, (171, 245, 255), pygame.Rect(
+                            (offset + (j//3) *3* cell_size,
+                             offset + (i//3) *3* cell_size), (3 * cell_size, 3 * cell_size)))
+                        ok=1
+                if ok==1:
+                    pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((offset, highlight_cell[1]), (grid_size, cell_size)))
+                    pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((highlight_cell[0], offset), (cell_size, grid_size)))
+                    pygame.draw.rect(screen, (219, 203, 247), pygame.Rect((highlight_cell[0], highlight_cell[1]), (cell_size, cell_size)))
+
+            if selected_number!=0 and sudoku_matrix[floor(sel_col)][floor(sel_row)] != correct_matrix[floor(sel_col)][floor(sel_row)]:
+                pygame.draw.rect(screen, (255, 0, 0),
+                pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
             else:
-                left_to_complete-=1
-            added_number=0
+                pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
 
-        if deleted_cell is not None:
-            if original_matrix[floor(sel_col)][floor(sel_row)]==0:
-                sudoku_matrix[floor(sel_col)][floor(sel_row)]=0
-            deleted_cell=None
+            if added_number!=0 and selected_number==0:
+                sudoku_matrix[floor(sel_col)][floor(sel_row)]=added_number
+                if sudoku_matrix[floor(sel_col)][floor(sel_row)]!=correct_matrix[floor(sel_col)][floor(sel_row)]:
+                    mistakes+=1
+                else:
+                    left_to_complete-=1
+                added_number=0
+
+            if deleted_cell is not None:
+                if original_matrix[floor(sel_col)][floor(sel_row)]==0:
+                    sudoku_matrix[floor(sel_col)][floor(sel_row)]=0
+                deleted_cell=None
 
 
 
 
 
-    for i in range(10):
-        thickness = 5 if i%3==0 else 1
+        for i in range(10):
+            thickness = 5 if i%3==0 else 1
 
-        #vertical lines
-        pygame.draw.line(
-            screen, (0,0,0),
-            (offset + i * cell_size, offset),
-            (offset + i * cell_size, offset + grid_size),
-            thickness)
+            #vertical lines
+            pygame.draw.line(
+                screen, (0,0,0),
+                (offset + i * cell_size, offset),
+                (offset + i * cell_size, offset + grid_size),
+                thickness)
 
-        #horizontal lines
-        pygame.draw.line(
-            screen, (0,0,0),
-            (offset, offset + i * cell_size),
-            (offset + grid_size, offset + i * cell_size),
-            thickness
-        )
+            #horizontal lines
+            pygame.draw.line(
+                screen, (0,0,0),
+                (offset, offset + i * cell_size),
+                (offset + grid_size, offset + i * cell_size),
+                thickness
+            )
 
-        for row in range(9):
-            for col in range(9):
-                cell_value=sudoku_matrix[row][col]
-                if cell_value != 0:
-                    text_surface=number_font.render(str(cell_value), True, (0,0,0))
+            for row in range(9):
+                for col in range(9):
+                    cell_value=sudoku_matrix[row][col]
+                    if cell_value != 0:
+                        text_surface=number_font.render(str(cell_value), True, (0,0,0))
 
-                    center_x=offset+(col*cell_size)+(cell_size//2)
-                    center_y=offset+(row*cell_size)+(cell_size//2)
+                        center_x=offset+(col*cell_size)+(cell_size//2)
+                        center_y=offset+(row*cell_size)+(cell_size//2)
 
-                    text_rect=text_surface.get_rect(center=(center_x,center_y))
+                        text_rect=text_surface.get_rect(center=(center_x,center_y))
 
-                    screen.blit(text_surface, text_rect)
+                        screen.blit(text_surface, text_rect)
+
+
+    elif state==0:
+        pygame.draw.rect(screen, (115, 185, 250), pygame.Rect((360, 240), (720, 240)))
+        font=pygame.font.SysFont('Arial', 78)
+        new_game=font.render('New game', True, (0, 79, 153))
+        textRect=new_game.get_rect()
+        textRect.center=(360+(720//2), 240+(240//2))
+        screen.blit(new_game, textRect)
+
+        pygame.draw.rect(screen, (0, 79, 153), pygame.Rect((600, 720), (240, 120)))
+        easymode=font.render('Easy', True, (115, 185, 250))
+        easyRect=easymode.get_rect()
+        easyRect.center=(600+(240//2), 720+(120//2))
+        screen.blit(easymode, easyRect)
 
 
 
