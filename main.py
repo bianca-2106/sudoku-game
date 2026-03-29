@@ -1,6 +1,45 @@
 from math import floor
-
 import pygame
+import random
+
+
+def valid(board, row, col, num):
+    if num in board[row]:
+        return False
+
+    for i in range(9):
+        if board[i][col]==num:
+            return False
+
+    box_x=(row//3)*3
+    box_y=(col//3)*3
+    for i in range(box_x, box_x+3):
+        for j in range(box_y, box_y+3):
+            if board[i][j]==num:
+                return False
+    return True
+
+
+def generate_board(board):
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == 0:
+                numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                random.shuffle(numbers)
+
+                for num in numbers:
+                    if valid(board, row, col, num):
+                        board[row][col] = num
+
+                        if generate_board(board):
+                            return True
+
+                        board[row][col] = 0
+
+                return False
+
+    return True
+
 
 pygame.init()
 screen = pygame.display.set_mode((1440, 1440))
@@ -13,19 +52,25 @@ cell_size= grid_size / 9
 pygame.font.init()
 number_font=pygame.font.SysFont("Arial", 60)
 
-#sudoku_matrix=[[0 for _ in range(9)] for _ in range(9)]
+correct_matrix=[[0 for _ in range(9)] for _ in range(9)]
 
-sudoku_matrix = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
+generate_board(correct_matrix)
+
+uncompleted_cells=[]
+
+for i in range(30):
+    x=random.randint(0,8)
+    y=random.randint(0,8)
+    uncompleted_cells.append((x,y))
+
+sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+for i in range(9):
+    for j in range(9):
+        sudoku_matrix[i][j] = correct_matrix[i][j]
+
+for i,j in uncompleted_cells:
+    sudoku_matrix[i][j]=0
 
 original_matrix=[[0 for _ in range(9)] for _ in range(9)]
 
