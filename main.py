@@ -84,6 +84,9 @@ selected_number=0
 
 added_number=0
 deleted_cell=None
+mistakes=0
+
+left_to_complete=30
 
 while running:
     for event in pygame.event.get():
@@ -152,11 +155,18 @@ while running:
                 pygame.draw.rect(screen, (171, 245, 255), pygame.Rect((highlight_cell[0], offset), (cell_size, grid_size)))
                 pygame.draw.rect(screen, (219, 203, 247), pygame.Rect((highlight_cell[0], highlight_cell[1]), (cell_size, cell_size)))
 
-
-        pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
+        if selected_number!=0 and sudoku_matrix[floor(sel_col)][floor(sel_row)] != correct_matrix[floor(sel_col)][floor(sel_row)]:
+            pygame.draw.rect(screen, (255, 0, 0),
+            pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
+        else:
+            pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
 
         if added_number!=0 and selected_number==0:
             sudoku_matrix[floor(sel_col)][floor(sel_row)]=added_number
+            if sudoku_matrix[floor(sel_col)][floor(sel_row)]!=correct_matrix[floor(sel_col)][floor(sel_row)]:
+                mistakes+=1
+            else:
+                left_to_complete-=1
             added_number=0
 
         if deleted_cell is not None:
