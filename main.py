@@ -30,6 +30,8 @@ sudoku_matrix = [
 selected_cell=None
 selected_number=0
 
+added_number=0
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -44,6 +46,29 @@ while running:
                 selected_cell=(clicked_col,clicked_row)
             else:
                 selected_cell=None
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                added_number=1
+            elif event.key == pygame.K_2:
+                added_number=2
+            elif event.key == pygame.K_3:
+                added_number=3
+            elif event.key == pygame.K_4:
+                added_number=4
+            elif event.key == pygame.K_5:
+                added_number=5
+            elif event.key == pygame.K_6:
+                added_number=6
+            elif event.key == pygame.K_7:
+                added_number=7
+            elif event.key == pygame.K_8:
+                added_number=8
+            elif event.key == pygame.K_9:
+                added_number=9
+            elif event.key == pygame.K_BACKSPACE:
+                added_number=0
+
+
 
     screen.fill((148, 115, 189))
 
@@ -76,6 +101,11 @@ while running:
 
 
         pygame.draw.rect(screen, (191, 160, 250), pygame.Rect((highlight_y, highlight_x), (cell_size, cell_size)))
+
+        if added_number!=0 and selected_number==0:
+            sudoku_matrix[floor(sel_col)][floor(sel_row)]=added_number
+            added_number=0
+
 
 
 
