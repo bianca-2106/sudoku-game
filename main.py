@@ -27,10 +27,18 @@ sudoku_matrix = [
     [0, 0, 0, 0, 8, 0, 0, 7, 9]
 ]
 
+original_matrix=[[0 for _ in range(9)] for _ in range(9)]
+
+for i in range(9):
+    for j in range(9):
+        if sudoku_matrix[i][j]!=0:
+            original_matrix[i][j]=1
+
 selected_cell=None
 selected_number=0
 
 added_number=0
+deleted_cell=None
 
 while running:
     for event in pygame.event.get():
@@ -66,7 +74,7 @@ while running:
             elif event.key == pygame.K_9:
                 added_number=9
             elif event.key == pygame.K_BACKSPACE:
-                added_number=0
+                deleted_cell=selected_cell
 
 
 
@@ -105,6 +113,11 @@ while running:
         if added_number!=0 and selected_number==0:
             sudoku_matrix[floor(sel_col)][floor(sel_row)]=added_number
             added_number=0
+
+        if deleted_cell is not None:
+            if original_matrix[floor(sel_col)][floor(sel_row)]==0:
+                sudoku_matrix[floor(sel_col)][floor(sel_row)]=0
+            deleted_cell=None
 
 
 
