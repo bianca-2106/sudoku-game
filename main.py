@@ -48,10 +48,16 @@ def easy():
 
     uncompleted_cells = []
 
+    left_to_complete = 30
+
     for i in range(30):
         x = random.randint(0, 8)
         y = random.randint(0, 8)
-        uncompleted_cells.append((x, y))
+        if (x,y) not in uncompleted_cells:
+            uncompleted_cells.append((x,y))
+        else:
+            left_to_complete -= 1
+
 
     sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
 
@@ -69,15 +75,14 @@ def easy():
             if sudoku_matrix[i][j] != 0:
                 original_matrix[i][j] = 1
 
-    left_to_complete = 30
 
 pygame.init()
 screen = pygame.display.set_mode((1440, 1440))
 pygame.display.set_caption("Sudoku Game")
 running = True
 state=0
-offset = 120
-grid_size = 1200
+offset = 180
+grid_size = 1440-2*offset
 cell_size = grid_size / 9
 pygame.font.init()
 number_font = pygame.font.SysFont("Arial", 60)
@@ -93,6 +98,13 @@ added_number = 0
 deleted_cell = None
 mistakes = 0
 left_to_complete = 0
+assist=0
+
+heart1=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
+heart2=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
+heart3=pygame.transform.scale(pygame.image.load("assets/heart.png"), (80, 74))
+toggle_off=pygame.transform.scale(pygame.image.load("assets/toggle-off.png"), (32, 32))
+toggle_on=pygame.transform.scale(pygame.image.load("assets/toggle-on.png"), (32, 32))
 
 while running:
     for event in pygame.event.get():
@@ -140,7 +152,7 @@ while running:
 
     screen.fill((148, 115, 189))
     if state==1:
-        pygame.draw.rect(screen, (192, 252, 246), pygame.Rect((120, 120), (1200, 1200)))
+        pygame.draw.rect(screen, (192, 252, 246), pygame.Rect((offset, offset), (grid_size, grid_size)))
 
         if selected_cell is not None:
             sel_row, sel_col=selected_cell
@@ -179,7 +191,7 @@ while running:
                     mistakes+=1
                 else:
                     left_to_complete-=1
-                added_number=0
+            added_number=0
 
             if deleted_cell is not None:
                 if original_matrix[floor(sel_col)][floor(sel_row)]==0:
@@ -220,6 +232,50 @@ while running:
                         text_rect=text_surface.get_rect(center=(center_x,center_y))
 
                         screen.blit(text_surface, text_rect)
+
+        if mistakes==0:
+            screen.blit(heart1, (680, 50))
+            screen.blit(heart2, (520, 50))
+            screen.blit(heart3, (820, 50))
+        elif mistakes==1:
+            screen.blit(heart1, (680, 50))
+            screen.blit(heart2, (520, 50))
+        elif mistakes==2:
+            screen.blit(heart1, (520, 50))
+
+        if mistakes==3:
+            screen.fill((255, 13, 37))
+            font=pygame.font.SysFont('Arial', 150)
+            you_lost=font.render('You lost!', True, (255, 255, 255))
+            textRect=you_lost.get_rect()
+            textRect.center=(720, 720)
+            screen.blit(you_lost, textRect)
+
+            pygame.display.flip()
+
+            pygame.time.wait(3000)
+
+            state=0
+            mistakes=0
+
+        if left_to_complete==0:
+            pygame.display.flip()
+            pygame.time.wait(1000)
+
+            screen.fill((143, 250, 135))
+            font = pygame.font.SysFont('Arial', 150)
+            you_won = font.render('You won!', True, (0, 0, 0))
+            textRect = you_won.get_rect()
+            textRect.center = (720, 720)
+            screen.blit(you_won, textRect)
+
+            pygame.display.flip()
+
+            pygame.time.wait(3000)
+
+            state = 0
+            mistakes = 0
+
 
 
     elif state==0:
