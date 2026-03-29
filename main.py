@@ -186,7 +186,7 @@ while running:
                     clicked_row=(mouse_y-offset)//cell_size
 
                     selected_cell=(clicked_col,clicked_row)
-                elif 150<= mouse_x <=300 and 1200<=mouse_y<=1350:
+                elif 150<= mouse_x <=300 and 1180<=mouse_y<=1380:
                         if assist==0:
                             assist=1
                         else:
@@ -224,6 +224,8 @@ while running:
                 added_number=9
             elif event.key == pygame.K_BACKSPACE:
                 deleted_cell=selected_cell
+            elif event.key == pygame.K_r:
+                state=0
 
 
 
@@ -365,6 +367,12 @@ while running:
         assistRect=assist_font.get_rect()
         assistRect.center=(380, 1340);
         screen.blit(assist_font, assistRect)
+
+        font2=pygame.font.SysFont('Arial', 45)
+        reset=font2.render('Press R to restart', True, (0, 0, 0))
+        resetRect=reset.get_rect()
+        resetRect.center=(1100, 1340);
+        screen.blit(reset, resetRect)
 
 
 
