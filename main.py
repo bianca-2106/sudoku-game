@@ -75,6 +75,73 @@ def easy():
             if sudoku_matrix[i][j] != 0:
                 original_matrix[i][j] = 1
 
+def medium():
+    global correct_matrix, sudoku_matrix, original_matrix, left_to_complete
+    correct_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    generate_board(correct_matrix)
+
+    uncompleted_cells = []
+
+    left_to_complete = 45
+
+    for i in range(45):
+        x = random.randint(0, 8)
+        y = random.randint(0, 8)
+        if (x, y) not in uncompleted_cells:
+            uncompleted_cells.append((x, y))
+        else:
+            left_to_complete -= 1
+
+    sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            sudoku_matrix[i][j] = correct_matrix[i][j]
+
+    for i, j in uncompleted_cells:
+        sudoku_matrix[i][j] = 0
+
+    original_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            if sudoku_matrix[i][j] != 0:
+                original_matrix[i][j] = 1
+
+def hard():
+    global correct_matrix, sudoku_matrix, original_matrix, left_to_complete
+    correct_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    generate_board(correct_matrix)
+
+    uncompleted_cells = []
+
+    left_to_complete = 65
+
+    for i in range(65):
+        x = random.randint(0, 8)
+        y = random.randint(0, 8)
+        if (x, y) not in uncompleted_cells:
+            uncompleted_cells.append((x, y))
+        else:
+            left_to_complete -= 1
+
+    sudoku_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            sudoku_matrix[i][j] = correct_matrix[i][j]
+
+    for i, j in uncompleted_cells:
+        sudoku_matrix[i][j] = 0
+
+    original_matrix = [[0 for _ in range(9)] for _ in range(9)]
+
+    for i in range(9):
+        for j in range(9):
+            if sudoku_matrix[i][j] != 0:
+                original_matrix[i][j] = 1
 
 pygame.init()
 screen = pygame.display.set_mode((1440, 1440))
@@ -128,8 +195,13 @@ while running:
                     selected_cell=None
             elif state==0:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                if 600<= mouse_x <=840 and 720<=mouse_y <= 720+120:
-                    easy()
+                if 580<=mouse_x <= 580+280:
+                    if 670<=mouse_y<=670+120:
+                        easy()
+                    elif 920<=mouse_y<=920+120:
+                        medium()
+                    elif 1170<=mouse_y<=1170+120:
+                        hard()
                     state=1
         elif state==1 and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
@@ -298,18 +370,31 @@ while running:
 
     elif state==0:
         pygame.draw.rect(screen, (115, 185, 250), pygame.Rect((360, 240), (720, 240)))
-        font=pygame.font.SysFont('Arial', 78)
-        new_game=font.render('New game', True, (0, 79, 153))
+        font1=pygame.font.SysFont('Arial', 150)
+        new_game=font1.render('New game', True, (0, 79, 153))
         textRect=new_game.get_rect()
         textRect.center=(360+(720//2), 240+(240//2))
         screen.blit(new_game, textRect)
 
-        pygame.draw.rect(screen, (0, 79, 153), pygame.Rect((600, 720), (240, 120)))
+        font = pygame.font.SysFont('Arial', 78)
+
+        pygame.draw.rect(screen, (0, 79, 153), pygame.Rect((580, 670), (280, 120)))
         easymode=font.render('Easy', True, (115, 185, 250))
         easyRect=easymode.get_rect()
-        easyRect.center=(600+(240//2), 720+(120//2))
+        easyRect.center=(580+(280//2), 670+(120//2))
         screen.blit(easymode, easyRect)
 
+        pygame.draw.rect(screen, (0, 79, 153), pygame.Rect((580, 920), (280, 120)))
+        mediummode = font.render('Medium', True, (115, 185, 250))
+        mediumRect = mediummode.get_rect()
+        mediumRect.center = (580 + (280 // 2), 920 + (120 // 2))
+        screen.blit(mediummode, mediumRect)
+
+        pygame.draw.rect(screen, (0, 79, 153), pygame.Rect((580, 1170), (280, 120)))
+        hardmode = font.render('Hard', True, (115, 185, 250))
+        hardRect = hardmode.get_rect()
+        hardRect.center = (580 + (280 // 2), 1170 + (120 // 2))
+        screen.blit(hardmode, hardRect)
 
 
     pygame.display.flip()
